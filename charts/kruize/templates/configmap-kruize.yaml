@@ -1,0 +1,81 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullName }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  dbconfigjson: |
+    {
+      "database": {
+        "adminPassword": {{ .Values.db.adminPassword }},
+        "adminUsername": {{ .Values.db.adminUser }},
+        "hostname": "{{ $fullName }}-db-service",
+        "name": {{ .Values.db.name }},
+        "password": {{ .Values.db.password }},
+        "port": {{ .Values.db.service.port }},
+        "sslMode": {{ .Values.db.sslMode }},
+        "username": {{ .Values.db.user }}
+      }
+    }
+  kruizeconfigjson: |
+    {
+      "clustertype": {{ .Values.kruize.config.clusterType }},
+      "k8stype": {{ .Values.kruize.config.k8sType }},
+      "authtype": {{ .Values.kruize.config.authType | quote }},
+      "monitoringagent": {{ .Values.kruize.config.monitoringAgent }},
+      "monitoringservice": {{ .Values.kruize.config.monitoringService }},
+      "monitoringendpoint": {{ .Values.kruize.config.monitoringEndPoint }},
+      "savetodb": {{ .Values.kruize.config.saveToDB }},
+      "dbdriver": {{ .Values.kruize.config.dbDriver | quote }},
+      "plots": {{ .Values.kruize.config.plots }},
+      "isROSEnabled": {{ .Values.kruize.config.isROSEnabled }},
+      "local": {{ .Values.kruize.config.local }},
+      "logAllHttpReqAndResp": {{ .Values.kruize.config.logAllHttpReqAndResp }},
+      "recommendationsURL" : {{ printf "http://kruize.%s.svc.cluster.local:8080/generateRecommendations?experiment_name=%%s" .Release.Namespace | quote }},
+      "experimentsURL" : {{ printf "http://kruize.%s.svc.cluster.local:8080/createExperiment" .Release.Namespace | quote }},
+      "experimentNameFormat" : {{ .Values.kruize.config.experimentNameFormat | quote }},
+      "bulkapilimit" : {{ .Values.kruize.config.bulkapilimit }},
+      "isKafkaEnabled" : {{ .Values.kruize.config.isKafkaEnabled }},
+      "hibernate": {
+        "dialect": {{ .Values.kruize.config.hibernate.dialect | quote }},
+        "driver": {{ .Values.kruize.config.hibernate.driver | quote }},
+        "c3p0minsize": {{ .Values.kruize.config.hibernate.c3p0minsize }},
+        "c3p0maxsize": {{ .Values.kruize.config.hibernate.c3p0maxsize }},
+        "c3p0timeout": {{ .Values.kruize.config.hibernate.c3p0timeout }},
+        "c3p0maxstatements": {{ .Values.kruize.config.hibernate.c3p0maxstatements }},
+        "hbm2ddlauto": {{ .Values.kruize.config.hibernate.hbm2ddlauto | quote }},
+        "showsql": {{ .Values.kruize.config.hibernate.showsql | quote}},
+        "timezone": {{ .Values.kruize.config.hibernate.timezone | quote }}
+      },
+      "logging" : {
+        "cloudwatch": {
+          "accessKeyId": {{ .Values.kruize.config.logging.cloudwatch.accessKeyId | quote }},
+          "logGroup": {{ .Values.kruize.config.logging.cloudwatch.logGroup }},
+          "logStream": {{ .Values.kruize.config.logging.cloudwatch.logStream }},
+          "region": {{ .Values.kruize.config.logging.cloudwatch.region | quote }},
+          "secretAccessKey": {{ .Values.kruize.config.logging.cloudwatch.secretAccessKey | quote }},
+          "logLevel": {{ .Values.kruize.config.logging.cloudwatch.logLevel }}
+        }
+      },
+
+      "datasource": [
+       {{- range $index, $element := .Values.kruize.config.datasource }}
+         {{- if $index }},{{ end }}
+         {
+           "name": {{ $element.name | quote }},
+           "provider": {{ $element.provider | quote }},
+           "serviceName": {{ $element.serviceName | quote }},
+           "namespace": {{ $element.namespace | quote }},
+           "url": {{ $element.url | quote }},
+           "authentication": {
+              "type": {{ $element.authentication.type | quote }},
+              "credentials": {
+                 "tokenFilePath": {{ $element.authentication.credentials.tokenFilePath | quote }}
+               }
+            }
+          }
+        {{- end }}
+      ]
+    }

@@ -1,0 +1,21 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/path: '/metrics'
+  labels:
+    app: kruize
+spec:
+  type: {{ .Values.kruize.service.type }}
+  selector:
+    app: kruize
+  ports:
+    - name: kruize-port
+      port: {{ .Values.kruize.service.port }}
+      targetPort: {{ .Values.kruize.service.port }}
+

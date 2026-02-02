@@ -1,0 +1,15 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-ui-nginx-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.kruizeUI.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.kruizeUI.service.port }}
+      targetPort: {{ .Values.kruizeUI.service.port }}
+  selector:
+    app: kruize-ui-nginx

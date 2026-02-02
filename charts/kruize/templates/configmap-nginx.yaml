@@ -1,0 +1,32 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullName }}-nginx-config
+  namespace: {{ .Release.Namespace }}
+data:
+  nginx.conf: |
+    events {}
+    http {
+      upstream kruize-api {
+        server {{ $fullName }}:8080;
+      }
+
+      server {
+        listen 8080;
+        server_name localhost;
+
+        root   /usr/share/nginx/html;
+
+        location ^~ /api/ {
+          rewrite ^/api(.*)$ $1 break;
+          proxy_pass http://kruize-api;
+        }
+
+        location / {
+          index index.html;
+          error_page 404 =200 /index.html;
+        }
+      }
+    }

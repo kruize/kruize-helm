@@ -1,0 +1,95 @@
+{{- $fullName := include "kruize.fullname" . -}}
+{{- $image := .Values.kruize.image -}}
+{{- $namespace := .Release.Namespace -}}
+
+{{- $loggingLevel := "info" -}}
+{{- $dbConfigFile := "" -}}
+{{- $kruizeConfigFile := "" -}}
+
+{{- range .Values.kruize.env -}}
+  {{- if eq .name "LOGGING_LEVEL" -}}
+    {{- $loggingLevel = .value -}}
+  {{- end -}}
+  {{- if eq .name "DB_CONFIG_FILE" -}}
+    {{- $dbConfigFile = .value -}}
+  {{- end -}}
+  {{- if eq .name "KRUIZE_CONFIG_FILE" -}}
+    {{- $kruizeConfigFile = .value -}}
+  {{- end -}}
+{{- end -}}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-create-partition
+  namespace: {{ $namespace }}
+spec:
+  schedule: "0 0 25 * *" # Run on 25th of every month at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kruize-cron-create
+              image: {{ $image }}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+              command:
+                - sh
+                - -c
+                - |
+                  /home/autotune/app/target/bin/CreatePartition
+              env:
+                - name: START_AUTOTUNE
+                  value: "false"
+                - name: LOGGING_LEVEL
+                  value: {{ $loggingLevel | quote }}
+                - name: DB_CONFIG_FILE
+                  value: {{ $dbConfigFile | quote }}
+                - name: KRUIZE_CONFIG_FILE
+                  value: {{ $kruizeConfigFile | quote }}
+          volumes:
+            - name: config-volume
+              configMap:
+                name: {{ $fullName }}-config
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-delete-partition
+  namespace: {{ $namespace }}
+spec:
+  schedule: "0 0 25 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kruize-cron-delete
+              image: {{ $image }}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+              command:
+                - sh
+                - -c
+                - |
+                  /home/autotune/app/target/bin/RetentionPartition
+              env:
+                - name: START_AUTOTUNE
+                  value: "false"
+                - name: DB_CONFIG_FILE
+                  value: {{ $dbConfigFile | quote }}
+                - name: KRUIZE_CONFIG_FILE
+                  value: {{ $kruizeConfigFile | quote }}
+                - name: deletepartitionsthreshold
+                  value: {{ .Values.cronJob.deletePartitionsThreshold | quote }}
+          volumes:
+            - name: config-volume
+              configMap:
+                name: ${{ $fullName }}-config
+          restartPolicy: OnFailure
