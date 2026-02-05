@@ -1,0 +1,190 @@
+## @section Kruize Container
+## @extra Configuration for the Kruize application
+
+kruize:
+  image: 
+    ## @param kruize.image.repository Repository for Kruize container image
+    repository: quay.io/kruize/autotune_operator
+    ## @param kruize.image.pullPolicy Image pull policy for the Kruize container image
+    pullPolicy: Always
+    ## @param kruize.image.tag Image tag for Kruize container
+    tag: "0.8.1"
+  ## @param kruize.replicaCount Replica count for the Kruize container
+  replicaCount: 1
+  resources:
+    requests:
+      ## @param kruize.resources.requests.memory Memory resource request for the Kruize container
+      memory: "768Mi"
+      ## @param kruize.resources.requests.cpu CPU resource request for the Kruize container
+      cpu: "0.7"
+    limits:
+      ## @param kruize.resources.limits.memory Memory resource limit for the Kruize container
+      memory: "768Mi"
+      ## @param kruize.resources.limits.cpu CPU resource limit for the Kruize container
+      cpu: "0.7"
+  service:
+    ## @param kruize.service.type Kruize service type
+    type: NodePort
+    ## @param kruize.service.type Kruize service port
+    port: 8080
+  env:
+    - name: LOGGING_LEVEL
+      value: "info"
+    - name: ROOT_LOGGING_LEVEL
+      value: "error"
+    - name: DB_CONFIG_FILE
+      value: "/etc/config/dbconfigjson"
+    - name: KRUIZE_CONFIG_FILE
+      value: "/etc/config/kruizeconfigjson"
+    - name: JAVA_TOOL_OPTIONS
+      value: "-XX:MaxRAMPercentage=80"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: "kruize-kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    - name: KAFKA_TOPICS
+      value: "recommendations-topic,error-topic,summary-topic"
+    - name: KAFKA_RESPONSE_FILTER_INCLUDE
+      value: "experiments|status|apis|recommendations|response|status_history"
+    - name: KAFKA_RESPONSE_FILTER_EXCLUDE
+      value: ""
+   
+  config:  
+    clusterType: "kubernetes"
+    k8sType: "openshift"
+    authType: ""
+    monitoringAgent: "prometheus"
+    monitoringService: "prometheus-k8s"
+    monitoringEndPoint: "prometheus-k8s"
+    saveToDB: "true"
+    dbDriver: "jdbc:postgresql://"
+    plots: "true"
+    isROSEnabled: "false"
+    local: "true"
+    logAllHttpReqAndResp: "true"
+    experimentNameFormat: "%datasource%|%clustername%|%namespace%|%workloadname%(%workloadtype%)|%containername%"
+    bulkapilimit: 1000
+    isKafkaEnabled: "false"
+    hibernate:
+      dialect: "org.hibernate.dialect.PostgreSQLDialect"
+      driver: "org.postgresql.Driver"
+      c3p0minsize: 5
+      c3p0maxsize: 10
+      c3p0timeout: 300
+      c3p0maxstatements: 100
+      hbm2ddlauto: "none"
+      showsql: "false"
+      timezone: "UTC"
+      
+    logging:
+      cloudwatch:
+        accessKeyId: ""
+        logGroup: "kruize-logs"
+        logStream: "kruize-stream"
+        region: ""
+        secretAccessKey: ""
+        logLevel: "INFO"
+        
+    datasource: 
+      - name: "prometheus-1"
+        provider: "prometheus"
+        serviceName: "prometheus-k8s"
+        namespace: "openshift-monitoring"
+        url: ""
+        authentication: 
+          type: "bearer"
+          credentials:
+            tokenFilePath: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    
+      - name: "thanos-1"
+        provider: "prometheus"
+        serviceName: "thanos-querier"
+        namespace: "openshift-monitoring"
+        url: ""
+        authentication:
+          type: "bearer"
+          credentials:
+            tokenFilePath: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+         
+
+cronJob:
+  deletePartitionsThreshold: "15"
+
+# Kruize DB configuration
+db:
+  image: 
+    ## @param db.image.repository Repository for Kruize DB container image
+    repository: quay.io/kruizehub/postgres
+    ## @param db.image.pullPolicy Image pull policy for the Kruize DB container image
+    pullPolicy: IfNotPresent
+    ## @param db.image.tag Image tag for Kruize DB container
+    tag: "15.2"
+  service:
+    ## @param db.service.name Kruize DB service name
+    name: kruize-db-service
+    ## @param db.service.type Kruize DB service type
+    type: ClusterIP
+    ## @param db.service.port Kruize DB service port
+    port: 5432
+  resources:   
+    requests:
+      ## @param db.resources.requests.memory Memory resource request for the Kruize DB container
+      memory: "100Mi"
+       ## @param db.resources.requests.cpu CPU resource request for the Kruize DB container
+      cpu: "0.5"
+    limits:
+      ## @param db.resources.limits.memory Memory resource limit for the Kruize DB container
+      memory: "100Mi"
+      ## @param db.resources.limits.cpu CPU resource limit for the Kruize DB container
+      cpu: "0.5"
+  pvc:
+    storageClass: manual
+    storageSize: "500Mi"
+    hostPath: "/mnt/data"
+  ## @param db.user User for Kruize DB container
+  user: admin
+  ## @param db.password User for Kruize DB container
+  password: admin
+  ## @param db.adminUser Admin User for Kruize DB container
+  adminUser: admin
+  ## @param db.adminPassword Admin password for Kruize DB container
+  adminPassword: admin
+  ## @param db.name Name of the Kruize DB
+  name: kruizeDB
+  sslMode: require
+
+# Kruize UI Configuration
+
+kruizeUI:
+  image:
+    ## @param kruizeUI.image.repository Repository for Kruize UI container image
+    repository: quay.io/kruize/kruize-ui
+    ## @param kruizeUI.image.pullPolicy Image pull policy for the Kruize UI container image
+    pullPolicy: Always
+    ## @param kruizeUI.image.tag Image tag for Kruize UI container
+    tag: "0.0.8"
+  service:
+    ## @param kruizeUI.service.type Kruize UI service type
+    type: NodePort
+    ## @param kruizeUI.service.type Kruize UI service port
+    port: 8080
+
+
+## @section Other Parameters
+
+serviceAccount:
+  ## @param serviceAccount.create Specifies whether a service account should be created
+  create: true
+  ## @param serviceAccount.name The name of the service account to use
+  name: ""
+
+rbac:
+  ## @param rbac.create Specifies whether Openshift specific RBAC resources should be created
+  create: true
+
+## @param nameOverride Overrides the name of this Chart
+nameOverride: ""
+## @param fullnameOverride Overrides the fully qualified application name of `[release name]-[chart name]`
+fullnameOverride: ""
+
+monitoring:
+  enabled: true
+  interval: 30s

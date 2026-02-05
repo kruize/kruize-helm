@@ -1,0 +1,19 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}-db-pv-volume
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: local
+    app: {{ $fullName }}-db
+
+spec:
+  storageClassName: {{ .Values.db.pvc.storageClass | quote }}
+  capacity:
+    storage: {{ .Values.db.pvc.storageSize | quote }}
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: {{ printf "%s/%s" .Values.db.pvc.hostPath $fullName | quote }}

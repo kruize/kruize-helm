@@ -1,0 +1,22 @@
+{{- $fullName := include "kruize.fullname" . -}}
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $fullName }}-service-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kruize
+spec:
+  selector:
+    matchLabels:
+      app: kruize
+  endpoints:
+    - port: kruize-port
+      interval: {{ .Values.monitoring.interval }}
+      path: /metrics
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}
+
