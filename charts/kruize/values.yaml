@@ -25,8 +25,9 @@ kruize:
   service:
     ## @param kruize.service.type Kruize service type
     type: NodePort
-    ## @param kruize.service.type Kruize service port
+    ## @param kruize.service.port Kruize service port
     port: 8080
+  
   env:
     - name: LOGGING_LEVEL
       value: "info"
@@ -164,9 +165,9 @@ kruizeUI:
   service:
     ## @param kruizeUI.service.type Kruize UI service type
     type: NodePort
-    ## @param kruizeUI.service.type Kruize UI service port
+    ## @param kruizeUI.service.port Kruize UI service port
     port: 8080
-
+  
 
 ## @section Other Parameters
 

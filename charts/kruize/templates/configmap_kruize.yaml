@@ -9,42 +9,42 @@ data:
   dbconfigjson: |
     {
       "database": {
-        "adminPassword": {{ .Values.db.adminPassword }},
-        "adminUsername": {{ .Values.db.adminUser }},
+        "adminPassword": {{ .Values.db.adminPassword | quote }},
+        "adminUsername": {{ .Values.db.adminUser | quote }},
         "hostname": "{{ $fullName }}-db-service",
         "name": {{ printf "%s-%s" .Values.db.name $fullName | quote }},
-        "password": {{ .Values.db.password }},
-        "port": {{ .Values.db.service.port }},
-        "sslMode": {{ .Values.db.sslMode }},
-        "username": {{ .Values.db.user }}
+        "password": {{ .Values.db.password | quote }},
+        "port": {{ .Values.db.service.port | quote }},
+        "sslMode": {{ .Values.db.sslMode | quote }},
+        "username": {{ .Values.db.user | quote }}
       }
     }
   kruizeconfigjson: |
     {
-      "clustertype": {{ .Values.kruize.config.clusterType }},
-      "k8stype": {{ .Values.kruize.config.k8sType }},
+      "clustertype": {{ .Values.kruize.config.clusterType | quote }},
+      "k8stype": {{ .Values.kruize.config.k8sType | quote }},
       "authtype": {{ .Values.kruize.config.authType | quote }},
-      "monitoringagent": {{ .Values.kruize.config.monitoringAgent }},
-      "monitoringservice": {{ .Values.kruize.config.monitoringService }},
-      "monitoringendpoint": {{ .Values.kruize.config.monitoringEndPoint }},
-      "savetodb": {{ .Values.kruize.config.saveToDB }},
+      "monitoringagent": {{ .Values.kruize.config.monitoringAgent | quote }},
+      "monitoringservice": {{ .Values.kruize.config.monitoringService | quote }},
+      "monitoringendpoint": {{ .Values.kruize.config.monitoringEndPoint | quote }},
+      "savetodb": {{ .Values.kruize.config.saveToDB | quote }},
       "dbdriver": {{ .Values.kruize.config.dbDriver | quote }},
-      "plots": {{ .Values.kruize.config.plots }},
-      "isROSEnabled": {{ .Values.kruize.config.isROSEnabled }},
-      "local": {{ .Values.kruize.config.local }},
-      "logAllHttpReqAndResp": {{ .Values.kruize.config.logAllHttpReqAndResp }},
+      "plots": {{ .Values.kruize.config.plots | quote }},
+      "isROSEnabled": {{ .Values.kruize.config.isROSEnabled | quote }},
+      "local": {{ .Values.kruize.config.local | quote }},
+      "logAllHttpReqAndResp": {{ .Values.kruize.config.logAllHttpReqAndResp | quote }},
       "recommendationsURL" : {{ printf "http://%s.%s.svc.cluster.local:8080/generateRecommendations?experiment_name=%%s" $fullName .Release.Namespace | quote }},
       "experimentsURL" : {{ printf "http://%s.%s.svc.cluster.local:8080/createExperiment" $fullName .Release.Namespace | quote }},
       "experimentNameFormat" : {{ .Values.kruize.config.experimentNameFormat | quote }},
-      "bulkapilimit" : {{ .Values.kruize.config.bulkapilimit }},
-      "isKafkaEnabled" : {{ .Values.kruize.config.isKafkaEnabled }},
+      "bulkapilimit" : {{ .Values.kruize.config.bulkapilimit | quote }},
+      "isKafkaEnabled" : {{ .Values.kruize.config.isKafkaEnabled | quote }},
       "hibernate": {
         "dialect": {{ .Values.kruize.config.hibernate.dialect | quote }},
         "driver": {{ .Values.kruize.config.hibernate.driver | quote }},
-        "c3p0minsize": {{ .Values.kruize.config.hibernate.c3p0minsize }},
-        "c3p0maxsize": {{ .Values.kruize.config.hibernate.c3p0maxsize }},
-        "c3p0timeout": {{ .Values.kruize.config.hibernate.c3p0timeout }},
-        "c3p0maxstatements": {{ .Values.kruize.config.hibernate.c3p0maxstatements }},
+        "c3p0minsize": {{ .Values.kruize.config.hibernate.c3p0minsize | quote }},
+        "c3p0maxsize": {{ .Values.kruize.config.hibernate.c3p0maxsize | quote }},
+        "c3p0timeout": {{ .Values.kruize.config.hibernate.c3p0timeout | quote }},
+        "c3p0maxstatements": {{ .Values.kruize.config.hibernate.c3p0maxstatements | quote }},
         "hbm2ddlauto": {{ .Values.kruize.config.hibernate.hbm2ddlauto | quote }},
         "showsql": {{ .Values.kruize.config.hibernate.showsql | quote}},
         "timezone": {{ .Values.kruize.config.hibernate.timezone | quote }}
@@ -52,11 +52,11 @@ data:
       "logging" : {
         "cloudwatch": {
           "accessKeyId": {{ .Values.kruize.config.logging.cloudwatch.accessKeyId | quote }},
-          "logGroup": {{ .Values.kruize.config.logging.cloudwatch.logGroup }},
-          "logStream": {{ .Values.kruize.config.logging.cloudwatch.logStream }},
+          "logGroup": {{ .Values.kruize.config.logging.cloudwatch.logGroup | quote }},
+          "logStream": {{ .Values.kruize.config.logging.cloudwatch.logStream | quote }},
           "region": {{ .Values.kruize.config.logging.cloudwatch.region | quote }},
           "secretAccessKey": {{ .Values.kruize.config.logging.cloudwatch.secretAccessKey | quote }},
-          "logLevel": {{ .Values.kruize.config.logging.cloudwatch.logLevel }}
+          "logLevel": {{ .Values.kruize.config.logging.cloudwatch.logLevel | quote }}
         }
       },
 

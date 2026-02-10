@@ -1,5 +1,5 @@
 {{- $fullName := include "kruize.fullname" . -}}
-{{- $image := .Values.kruize.image -}}
+{{- $image := printf "%s:%s" .Values.kruize.image.repository .Values.kruize.image.tag -}}
 {{- $namespace := .Release.Namespace -}}
 
 {{- $loggingLevel := "info" -}}
@@ -91,5 +91,5 @@ spec:
           volumes:
             - name: config-volume
               configMap:
-                name: ${{ $fullName }}-config
+                name: {{ $fullName }}-config
           restartPolicy: OnFailure
