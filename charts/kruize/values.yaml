@@ -108,6 +108,7 @@ kruize:
 
 cronJob:
   deletePartitionsThreshold: "15"
+  createSchedule: "0 0 25 * *"
 
 # Kruize DB configuration
 db:
@@ -178,7 +179,7 @@ serviceAccount:
   name: ""
 
 rbac:
-  ## @param rbac.create Specifies whether Openshift specific RBAC resources should be created
+  ## @param rbac.create Specifies whether Openshift-specific RBAC resources should be created
   create: true
 
 ## @param nameOverride Overrides the name of this Chart

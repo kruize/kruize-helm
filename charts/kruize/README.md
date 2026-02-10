@@ -1,6 +1,6 @@
 # Kruize Helm Chart
 
-A Helm chart for deploying [Kruize]((https://github.com/kruize/autotune) on Kubernetes/OpenShift clusters.
+A Helm chart for deploying [Kruize](https://github.com/kruize/autotune) on Kubernetes/OpenShift clusters.
 
 ## Introduction
 
@@ -132,6 +132,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `cronJob.deletePartitionsThreshold` | Threshold for deleting old partitions (days) | `15` |
+| `cronJob.createSchedule` | Schedule for running the cron job | `0 0 25 * *` |
 
 ### Other Parameters
 
@@ -139,7 +140,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 |-----------|-------------|---------|
 | `serviceAccount.create` | Specifies whether a service account should be created | `true` |
 | `serviceAccount.name` | The name of the service account to use | `""` |
-| `rbac.create` | Specifies whether OpenShift specific RBAC resources should be created | `true` |
+| `rbac.create` | Specifies whether OpenShift-specific RBAC resources should be created | `true` |
 | `nameOverride` | Overrides the name of this Chart | `""` |
 | `fullnameOverride` | Overrides the fully qualified application name | `""` |
 
