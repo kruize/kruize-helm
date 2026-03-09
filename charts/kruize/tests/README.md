@@ -12,82 +12,108 @@ helm plugin install https://github.com/helm-unittest/helm-unittest
 
 ## Running Tests
 
-### Run All Tests (OpenShift/default values)
+> **Note:** The default `helm unittest charts/kruize` command will not find tests in subdirectories. You must explicitly specify test file patterns using the `-f` flag.
 
+### Run all tests
 ```bash
-helm unittest -f 'tests/*.yaml' charts/kruize
+helm unittest -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' charts/kruize
 ```
 
-### Run Minikube-specific Tests
-
+Or from within the chart directory:
 ```bash
-helm unittest -f 'tests/minikube/*.yaml' charts/kruize
+cd charts/kruize
+helm unittest -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' .
 ```
 
-### Run All Tests (default + minikube)
-
+### Run common tests only
 ```bash
-helm unittest charts/kruize
+cd charts/kruize
+helm unittest -f 'tests/common-tests/*.yaml' .
 ```
 
-### Run a Specific Test File
-
+### Run OpenShift-specific tests
 ```bash
-helm unittest -f 'tests/kruize_deployment_test.yaml' charts/kruize
+cd charts/kruize
+helm unittest -f 'tests/openshift/*.yaml' .
 ```
 
-### Run Tests with Verbose Output
-
+### Run Minikube-specific tests
 ```bash
-helm unittest -v charts/kruize
+cd charts/kruize
+helm unittest -f 'tests/minikube/*.yaml' .
+```
+
+### Run tests with verbose output
+```bash
+cd charts/kruize
+helm unittest -v -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' .
 ```
 
 ### Generate JUnit Test Report
-
 ```bash
-helm unittest --output-type JUnit --output-file test-results.xml charts/kruize
+cd charts/kruize
+helm unittest --output-type JUnit --output-file test-results.xml -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' .
 ```
 
-## Test Structure
+## Directory Structure
 
 ```
 tests/
-├── configmap_test.yaml              # Tests for configmap_kruize.yaml and configmap_nginx.yaml
-├── cronjobs_test.yaml               # Tests for cronjobs.yaml
-├── kruize_db_deployment_test.yaml   # Tests for kruize_db_deployment.yaml
-├── kruize_db_service_test.yaml      # Tests for kruize_db_service.yaml
-├── kruize_deployment_test.yaml      # Tests for kruize_deployment.yaml
-├── kruize_service_test.yaml         # Tests for kruize_service.yaml
-├── kruize_ui_test.yaml              # Tests for kruize_ui_nginx_pod.yaml and kruize_ui_nginx_service.yaml
-├── network_policy_test.yaml         # Tests for network_policy.yaml
-├── rbac_test.yaml                   # Tests for service_account.yaml, role.yaml, rolebinding.yaml
-├── service_monitor_test.yaml        # Tests for service_monitor.yaml
-├── storage_test.yaml                # Tests for storage_pv.yaml and storage_pvc.yaml
-└── minikube/
-    ├── kruize_db_deployment_minikube_test.yaml  # DB deployment tests with values-minikube.yaml
-    ├── kruize_deployment_minikube_test.yaml     # Kruize deployment tests with values-minikube.yaml
-    ├── network_policy_minikube_test.yaml        # Network policy tests with values-minikube.yaml
-    ├── rbac_minikube_test.yaml                  # RBAC tests with values-minikube.yaml
-    └── storage_minikube_test.yaml               # Storage tests with values-minikube.yaml
+├── common-tests/          # Tests that work across all platforms (39 tests)
+│   ├── configmap_test.yaml
+│   ├── cronjobs_test.yaml
+│   ├── kruize_db_deployment_test.yaml
+│   ├── kruize_db_service_test.yaml
+│   ├── kruize_service_test.yaml
+│   ├── kruize_ui_test.yaml
+│   ├── network_policy_test.yaml
+│   ├── service_monitor_test.yaml
+│   └── storage_test.yaml
+│
+├── openshift/             # OpenShift-specific tests (20 tests)
+│   ├── kruize_deployment_test.yaml
+│   └── rbac_test.yaml
+│
+└── minikube/              # Minikube-specific tests (34 tests)
+    ├── kruize_db_deployment_minikube_test.yaml
+    ├── kruize_deployment_minikube_test.yaml
+    ├── network_policy_minikube_test.yaml
+    ├── rbac_minikube_test.yaml
+    ├── service_monitor_minikube_test.yaml
+    └── storage_minikube_test.yaml
 ```
+
 
 ## Environment-specific Tests
 
-Tests in `tests/` use the default `values.yaml` (OpenShift deployment).
+### Common Tests (`tests/common-tests/`)
+Tests that work across all platforms using default `values.yaml`. These validate core functionality that is consistent regardless of deployment platform.
 
-Tests in `tests/minikube/` use `values-minikube.yaml` on top of `values.yaml` via the `values:` field in each test suite. These tests validate minikube-specific behaviour such as:
+### OpenShift Tests (`tests/openshift/`)
+Tests that use `values-openshift.yaml` to validate OpenShift-specific configurations:
+- `serviceAccount.create: true` — creates a dedicated service account
+- `rbac.create: true` — includes OpenShift-specific ClusterRoleBindings (cluster-monitoring-view, SCC anyuid)
+- Resource requests/limits are set
+- Full KAFKA_RESPONSE_FILTER_INCLUDE configuration
 
+### Minikube Tests (`tests/minikube/`)
+Tests that use `values-minikube.yaml` to validate minikube-specific configurations:
 - `serviceAccount.create: false` — uses the `default` service account
 - `rbac.create: false` — skips OpenShift-specific ClusterRoleBindings
 - `db.pgData: ""` — PGDATA env var is not set
 - `db.volumeMountPath: /var/lib/postgresql/data` — minikube postgres path
+- `db.pvc.storageSize: 1Gi` — smaller storage for minikube
 - `db.pvc.accessModes: [ReadWriteOnce]` — minikube storage access mode
+- `db.pvc.hostPath: /data/postgres` — minikube host path
+- `db.pvc.reclaimPolicy: Retain` — retain policy for minikube
 - `networkPolicy.enabled: true` — network policy is enabled on minikube
+- `monitoring.enabled: true` — monitoring is enabled on minikube
 - Empty resource requests/limits — no resource constraints on minikube
+- `KAFKA_RESPONSE_FILTER_INCLUDE: summary` — simplified kafka filter for minikube
 
 ## Test File Structure
 
-Each test file follows the cryostat-helm style:
+Each test file follows the below style:
 
 ```yaml
 suite: test <template-name>
@@ -134,32 +160,28 @@ tests:
 - `hasDocuments` - Checks the number of documents in the output
 - `matchRegex` - Checks if a value matches a regex pattern
 
-## Continuous Integration
-
-```yaml
-# Example GitHub Actions workflow
-- name: Install Helm
-  uses: azure/setup-helm@v3
-
-- name: Install helm-unittest plugin
-  run: helm plugin install https://github.com/helm-unittest/helm-unittest
-
-- name: Run Helm tests (OpenShift)
-  run: helm unittest -f 'tests/*.yaml' charts/kruize
-
-- name: Run Helm tests (Minikube)
-  run: helm unittest -f 'tests/minikube/*.yaml' charts/kruize
-```
 
 ## Adding New Tests
 
 When adding new templates or modifying existing ones:
 
-1. Create or update the corresponding test file in `charts/kruize/tests/`
-2. Follow the naming convention: `<template-name>_test.yaml`
-3. For minikube-specific behaviour, add a corresponding file in `charts/kruize/tests/minikube/` with `values: - ../../values-minikube.yaml`
+1. **For common functionality** (works across all platforms):
+   - Create or update test file in `charts/kruize/tests/common-tests/`
+   - Follow naming convention: `<template-name>_test.yaml`
+   - Use default `values.yaml`
+
+2. **For OpenShift-specific behavior**:
+   - Create or update test file in `charts/kruize/tests/openshift/`
+   - Add `values: - ../../values-openshift.yaml` to the test suite
+   - Test OpenShift-specific features (RBAC, SCC, monitoring, etc.)
+
+3. **For Minikube-specific behavior**:
+   - Create or update test file in `charts/kruize/tests/minikube/`
+   - Add `values: - ../../values-minikube.yaml` to the test suite
+   - Test minikube-specific overrides (empty resources, default SA, etc.)
+
 4. Include tests for:
-   - Default values (from `values.yaml`)
+   - Default values
    - Settings overrides (using `set:`)
    - Conditional resource creation (enabled/disabled flags)
    - Namespace propagation (using `release.namespace`)
@@ -178,13 +200,15 @@ helm plugin install https://github.com/helm-unittest/helm-unittest
 
 Run with verbose output to see detailed failure information:
 ```bash
-helm unittest -v charts/kruize
+helm unittest -v -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' charts/kruize
 ```
 
 ### Debugging Specific Tests
 
 ```bash
-helm unittest -f 'tests/kruize_deployment_test.yaml' -v charts/kruize
+helm unittest -f 'tests/common-tests/kruize_db_deployment_test.yaml' -v charts/kruize
+helm unittest -f 'tests/openshift/kruize_deployment_test.yaml' -v charts/kruize
+helm unittest -f 'tests/minikube/kruize_deployment_minikube_test.yaml' -v charts/kruize
 ```
 
 ## Resources

@@ -19,6 +19,24 @@ tests:
           path: metadata.namespace
           value: NAMESPACE
       - equal:
+          path: metadata.labels.app
+          value: RELEASE-NAME-kruize
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: kruize
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: "0.8.1"
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+      - equal:
+          path: metadata.labels["helm.sh/chart"]
+          value: kruize-0.1.0
+      - equal:
           path: spec.replicas
           value: 1
       - equal:
@@ -29,6 +47,7 @@ tests:
       - equal:
           path: spec.template.metadata.labels
           value:
+            app: RELEASE-NAME-kruize
             app.kubernetes.io/name: kruize
             app.kubernetes.io/instance: RELEASE-NAME
 
@@ -118,6 +137,3 @@ tests:
           value: "RELEASE-NAME-kruize-config"
 
 
-
-# Made by Bob
-# Made by Bob

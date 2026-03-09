@@ -72,5 +72,3 @@ tests:
           path: spec.namespaceSelector.matchNames[0]
           value: custom-namespace
 
-
-# Made by Bob

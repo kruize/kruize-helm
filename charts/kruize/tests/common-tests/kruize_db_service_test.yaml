@@ -1,8 +1,6 @@
-suite: test kruize_db_service.yaml (minikube)
+suite: test kruize_db_service.yaml
 templates:
   - kruize_db_service.yaml
-values:
-  - ../../values-minikube.yaml
 
 tests:
   - it: should create a Service with the correct default settings
@@ -62,5 +60,3 @@ tests:
           path: metadata.namespace
           value: custom-namespace
 
-
-# Made by Bob

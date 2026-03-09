@@ -1,8 +1,10 @@
-suite: test RBAC resources
+suite: test RBAC resources (openshift)
 templates:
   - service_account.yaml
   - role.yaml
   - rolebinding.yaml
+values:
+  - ../../values-openshift.yaml
 
 tests:
   - it: should not create ServiceAccount when disabled
@@ -207,5 +209,3 @@ tests:
       - hasDocuments:
           count: 3
 
-
-# Made by Bob

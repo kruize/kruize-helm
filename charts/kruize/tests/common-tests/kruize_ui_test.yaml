@@ -128,5 +128,3 @@ tests:
           path: metadata.namespace
           value: custom-namespace
 
-
-# Made by Bob
