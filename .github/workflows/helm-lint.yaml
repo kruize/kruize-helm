@@ -1,0 +1,110 @@
+name: Helm Lint
+
+on:
+  push:
+    branches:
+      - main
+      - mvp_demo
+    paths:
+      - 'charts/kruize/**'
+      - '.github/workflows/helm-lint.yaml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - mvp_demo
+    paths:
+      - 'charts/kruize/**'
+      - '.github/workflows/helm-lint.yaml'
+  workflow_dispatch:
+
+env:
+  HELM_VERSION: v3.13.0
+
+jobs:
+  helm-lint:
+    name: Lint Helm Chart
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Lint chart with default values
+        run: |
+          echo "=== Linting with default values ==="
+          helm lint charts/kruize
+
+      - name: Lint chart with minikube values
+        if: always()
+        run: |
+          echo "=== Linting with minikube values ==="
+          if [ -f charts/kruize/values-minikube.yaml ]; then
+            helm lint charts/kruize -f charts/kruize/values-minikube.yaml
+          else
+            echo "⚠️  values-minikube.yaml not found, skipping"
+          fi
+
+      - name: Lint chart with openshift values
+        if: always()
+        run: |
+          echo "=== Linting with openshift values ==="
+          if [ -f charts/kruize/values-openshift.yaml ]; then
+            helm lint charts/kruize -f charts/kruize/values-openshift.yaml
+          else
+            echo "⚠️  values-openshift.yaml not found, skipping"
+          fi
+
+      - name: Validate chart structure
+        run: |
+          echo "=== Validating chart structure ==="
+          
+          # Check required files
+          echo "Checking required files..."
+          required_files=(
+            "charts/kruize/Chart.yaml"
+            "charts/kruize/values.yaml"
+            "charts/kruize/templates"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ -e "$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file is missing"
+              exit 1
+            fi
+          done
+          
+          echo ""
+          echo "Chart structure validation passed!"
+
+      - name: Lint Summary
+        if: always()
+        run: |
+          echo "=== Helm Lint Summary ==="
+          echo ""
+          echo "Linted configurations:"
+          echo "  ✅ Default values"
+          
+          if [ -f charts/kruize/values-minikube.yaml ]; then
+            echo "  ✅ Minikube values"
+          else
+            echo "  ⚠️  Minikube values (not found)"
+          fi
+          
+          if [ -f charts/kruize/values-openshift.yaml ]; then
+            echo "  ✅ OpenShift values"
+          else
+            echo "  ⚠️  OpenShift values (not found)"
+          fi
+          
+          echo ""
+          echo "Lint checks completed!"
+
+
