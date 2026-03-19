@@ -8,8 +8,9 @@ Kruize is an intelligent resource optimization platform that helps you optimize 
 
 ## Prerequisites
 
-- Kubernetes 1.19+ or OpenShift 4.x+
+- Kubernetes 1.23.0+ or OpenShift 4.10+
 - Helm 3.0+
+- [Prometheus](https://github.com/prometheus/prometheus) (for Minikube, Kind clusters)
 
 ## Installing the Chart
 
