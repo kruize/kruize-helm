@@ -1,0 +1,72 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kruize.deploymentName" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.kruize.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "kruize.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kruize.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "kruize.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-kruize-db
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          command:
+            - sh
+            - -c
+            - >
+              until pg_isready
+              -h "{{ $fullName }}-db-service"
+              -p {{ .Values.db.service.port | default 5432 }}
+              -U {{ .Values.db.user | quote }};
+              do echo "Waiting for database...";
+              sleep 2;
+              done
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.kruize.image.repository }}:{{ .Values.kruize.image.tag }}"
+          imagePullPolicy: {{ .Values.kruize.image.pullPolicy }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+          env:
+            {{- range .Values.kruize.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- if or .Values.kruize.resources.requests.memory .Values.kruize.resources.requests.cpu .Values.kruize.resources.limits.memory .Values.kruize.resources.limits.cpu }}
+          resources:
+            {{- if or .Values.kruize.resources.requests.memory .Values.kruize.resources.requests.cpu }}
+            requests:
+              {{- if .Values.kruize.resources.requests.cpu }}
+              cpu: {{ .Values.kruize.resources.requests.cpu }}
+              {{- end }}
+              {{- if .Values.kruize.resources.requests.memory }}
+              memory: {{ .Values.kruize.resources.requests.memory }}
+              {{- end }}
+            {{- end }}
+            {{- if or .Values.kruize.resources.limits.memory .Values.kruize.resources.limits.cpu }}
+            limits:
+              {{- if .Values.kruize.resources.limits.cpu }}
+              cpu: {{ .Values.kruize.resources.limits.cpu }}
+              {{- end }}
+              {{- if .Values.kruize.resources.limits.memory }}
+              memory: {{ .Values.kruize.resources.limits.memory }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: kruize-port
+              containerPort: {{ .Values.kruize.service.port }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ $fullName }}-config
