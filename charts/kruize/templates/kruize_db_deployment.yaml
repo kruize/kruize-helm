@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-	{{- include "kruize.selectorLabels" . | nindent 8 }}
+        {{- include "kruize.selectorLabels" . | nindent 8 }}
         app: {{ $fullName }}-db
     spec:
       serviceAccountName: {{ include "kruize.serviceAccountName" . }}
