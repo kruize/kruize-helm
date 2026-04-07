@@ -13,7 +13,7 @@ roleRef:
   kind: ClusterRole
   name: {{ $fullName }}-recommendation-updater
 ---
-{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.create }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -26,8 +26,8 @@ roleRef:
   kind: ClusterRole
   name: cluster-monitoring-view
   apiGroup: rbac.authorization.k8s.io
-{{- end }}
 ---
+{{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -54,7 +54,7 @@ roleRef:
   name: {{ $fullName }}-edit-ko
   apiGroup: rbac.authorization.k8s.io
 ---
-{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.create }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -67,4 +67,5 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "kruize.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
+---
 {{- end }}
