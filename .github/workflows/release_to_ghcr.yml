@@ -16,7 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-          ref: mvp_demo
     
       - name: Install Helm
         uses: azure/setup-helm@v5.0.0
