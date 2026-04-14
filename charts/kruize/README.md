@@ -14,16 +14,40 @@ Kruize is an intelligent resource optimization platform that helps you optimize 
 
 ## Installing the Chart
 
-To install the chart with the release name `kruize`:
+### OpenShift Installation
+
+To install the chart with OpenShift-specific configuration:
 
 ```bash
-helm install kruize ./charts/kruize
+helm install kruize ./charts/kruize -f ./charts/kruize/values-openshift.yaml
 ```
 
 To install in a specific namespace:
 
 ```bash
-helm install kruize ./charts/kruize --namespace kruize --create-namespace
+helm install kruize ./charts/kruize -f ./charts/kruize/values-openshift.yaml --namespace openshift-tuning --create-namespace
+```
+
+### Minikube Installation
+
+To install the chart with Minikube-specific configuration:
+
+```bash
+helm install kruize ./charts/kruize -f ./charts/kruize/values-minikube.yaml
+```
+
+To install in a specific namespace:
+
+```bash
+helm install kruize ./charts/kruize -f ./charts/kruize/values-minikube.yaml --namespace monitoring --create-namespace
+```
+
+### Generic Kubernetes Installation
+
+To install with default values (generic Kubernetes):
+
+```bash
+helm install kruize ./charts/kruize
 ```
 
 ## Uninstalling the Chart
@@ -72,7 +96,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `kruize.config.clusterType` | Type of cluster | `kubernetes` |
-| `kruize.config.k8sType` | Kubernetes distribution type | `openshift` |
+| `kruize.config.k8sType` | Kubernetes distribution type (openshift/minikube/kubernetes) | `kubernetes` |
 | `kruize.config.authType` | Authentication type | `""` |
 | `kruize.config.monitoringAgent` | Monitoring agent to use | `prometheus` |
 | `kruize.config.monitoringService` | Monitoring service name | `prometheus-k8s` |
@@ -116,20 +140,12 @@ The following table lists the configurable parameters of the Kruize chart and th
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `kruize.config.datasource[0].name` | Name of the first datasource | `prometheus-1` |
-| `kruize.config.datasource[0].provider` | Provider type | `prometheus` |
-| `kruize.config.datasource[0].serviceName` | Service name | `prometheus-k8s` |
-| `kruize.config.datasource[0].namespace` | Namespace | `openshift-monitoring` |
-| `kruize.config.datasource[0].url` | Datasource URL | `""` |
-| `kruize.config.datasource[0].authentication.type` | Authentication type | `bearer` |
-| `kruize.config.datasource[0].authentication.credentials.tokenFilePath` | Token file path | `/var/run/secrets/kubernetes.io/serviceaccount/token` |
-| `kruize.config.datasource[1].name` | Name of the second datasource | `thanos-1` |
-| `kruize.config.datasource[1].provider` | Provider type | `prometheus` |
-| `kruize.config.datasource[1].serviceName` | Service name | `thanos-querier` |
-| `kruize.config.datasource[1].namespace` | Namespace | `openshift-monitoring` |
-| `kruize.config.datasource[1].url` | Datasource URL | `""` |
-| `kruize.config.datasource[1].authentication.type` | Authentication type | `bearer` |
-| `kruize.config.datasource[1].authentication.credentials.tokenFilePath` | Token file path | `/var/run/secrets/kubernetes.io/serviceaccount/token` |
+| `kruize.config.datasource` | Array of datasource configurations | `[]` (empty, platform-specific) |
+
+**Note:** Datasource configuration is platform-specific:
+- **OpenShift**: Configured in `values-openshift.yaml` with prometheus-k8s and thanos-querier in openshift-monitoring namespace
+- **Minikube**: Configured in `values-minikube.yaml` with prometheus-k8s in monitoring namespace
+- **Generic Kubernetes**: Empty by default, configure based on your monitoring setup
 
 ### Kruize Database Parameters
 
