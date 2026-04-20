@@ -12,9 +12,16 @@ Kruize is an intelligent resource optimization platform that helps you optimize 
 - Helm 3.0+
 - [Prometheus](https://github.com/prometheus/prometheus) (for Minikube, Kind clusters)
 
-## Installing the Chart
+## Installation
 
-### OpenShift Installation
+### From Source Code
+
+To install the chart from source code, run:
+
+git clone https://github.com/kruize/kruize-helm
+cd kruize-helm
+
+#### OpenShift Installation
 
 To install the chart with OpenShift-specific configuration:
 
@@ -28,7 +35,7 @@ To install in a specific namespace:
 helm install kruize ./charts/kruize -f ./charts/kruize/values-openshift.yaml --namespace openshift-tuning --create-namespace
 ```
 
-### Minikube Installation
+#### Minikube Installation
 
 To install the chart with Minikube-specific configuration:
 
@@ -42,20 +49,12 @@ To install in a specific namespace:
 helm install kruize ./charts/kruize -f ./charts/kruize/values-minikube.yaml --namespace monitoring --create-namespace
 ```
 
-### Generic Kubernetes Installation
-
-To install with default values (generic Kubernetes):
-
-```bash
-helm install kruize ./charts/kruize
-```
-
 ## Uninstalling the Chart
 
 To uninstall/delete the `kruize` deployment:
 
 ```bash
-helm uninstall kruize
+helm uninstall kruize -n <namespace>
 ```
 
 ## Configuration
