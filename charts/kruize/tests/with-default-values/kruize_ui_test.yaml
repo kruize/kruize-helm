@@ -1,11 +1,11 @@
 suite: test kruize UI templates
 templates:
-  - kruize_ui_nginx_depoyment.yaml
+  - kruize_ui_nginx_deployment.yaml
   - kruize_ui_nginx_service.yaml
 
 tests:
   - it: should create a UI nginx Deployment with the correct default settings
-    template: kruize_ui_nginx_depoyment.yaml
+    template: kruize_ui_nginx_deployment.yaml
     asserts:
       - hasDocuments:
           count: 1
@@ -64,7 +64,7 @@ tests:
           value: RELEASE-NAME-kruize-nginx-config
 
   - it: should create a UI nginx Deployment with the correct settings overrides
-    template: kruize_ui_nginx_depoyment.yaml
+    template: kruize_ui_nginx_deployment.yaml
     set:
       kruizeUI.image.tag: "0.2.0"
       kruizeUI.image.pullPolicy: IfNotPresent
@@ -81,7 +81,7 @@ tests:
           value: IfNotPresent
 
   - it: should create a UI nginx Deployment in the release namespace
-    template: kruize_ui_nginx_depoyment.yaml
+    template: kruize_ui_nginx_deployment.yaml
     release:
       namespace: custom-namespace
     asserts:

@@ -197,7 +197,7 @@ when versions are updated (e.g., kruize from 0.9 to 0.10) update the values in t
 **Verify all tests pass:**
    ```bash
    cd charts/kruize
-   helm unittest -f 'tests/common-tests/*.yaml' -f 'tests/openshift/*.yaml' -f 'tests/minikube/*.yaml' .
+   helm unittest -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' .
    ```
 
 ## Troubleshooting
@@ -219,10 +219,10 @@ helm unittest -v -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-
 ### Debugging Specific Tests
 
 ```bash
-helm unittest -f 'tests/common-tests/kruize_db_deployment_test.yaml' charts/kruize
-helm unittest -f 'tests/common-tests/kruize_ui_test.yaml' charts/kruize
-helm unittest -f 'tests/openshift/kruize_deployment_test.yaml' charts/kruize
-helm unittest -f 'tests/minikube/kruize_deployment_minikube_test.yaml' charts/kruize
+helm unittest -f 'tests/with-default-values/kruize_db_deployment_test.yaml' charts/kruize
+helm unittest -f 'tests/with-default-values/kruize_ui_test.yaml' charts/kruize
+helm unittest -f 'tests/with-openshift-values/kruize_deployment_test.yaml' charts/kruize
+helm unittest -f 'tests/with-minikube-values/kruize_deployment_minikube_test.yaml' charts/kruize
 ```
 
 ## Resources
