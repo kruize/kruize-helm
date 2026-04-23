@@ -46,7 +46,10 @@ helm unittest -f 'tests/with-minikube-values/*.yaml' .
 ### Run tests with verbose output
 ```bash
 cd charts/kruize
-helm unittest -v -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' .
+# Note: -v flag doesn't work with glob patterns, run specific test files instead
+helm unittest -v -f tests/with-default-values/kruize_ui_test.yaml .
+# Or run all tests without -v flag
+helm unittest -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' .
 ```
 
 ### Generate JUnit Test Report
