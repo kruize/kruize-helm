@@ -67,7 +67,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 |-----------|-------------|---------|
 | `kruize.image.repository` | Repository for Kruize container image | `quay.io/kruize/autotune_operator` |
 | `kruize.image.pullPolicy` | Image pull policy for the Kruize container image | `Always` |
-| `kruize.image.tag` | Image tag for Kruize container | `0.8.1` |
+| `kruize.image.tag` | Image tag for Kruize container | `0.9` |
 | `kruize.replicaCount` | Replica count for the Kruize container | `1` |
 | `kruize.resources.requests.memory` | Memory resource request for the Kruize container | `768Mi` |
 | `kruize.resources.requests.cpu` | CPU resource request for the Kruize container | `0.7` |
@@ -180,7 +180,8 @@ The following table lists the configurable parameters of the Kruize chart and th
 |-----------|-------------|---------|
 | `kruizeUI.image.repository` | Repository for Kruize UI container image | `quay.io/kruize/kruize-ui` |
 | `kruizeUI.image.pullPolicy` | Image pull policy for the Kruize UI container image | `Always` |
-| `kruizeUI.image.tag` | Image tag for Kruize UI container | `0.0.8` |
+| `kruizeUI.image.tag` | Image tag for Kruize UI container | `0.1.0` |
+| `kruizeUI.replicaCount` | Replica count for the Kruize UI container | `1` |
 | `kruizeUI.service.type` | Kruize UI service type | `NodePort` |
 | `kruizeUI.service.port` | Kruize UI service port | `8080` |
 
