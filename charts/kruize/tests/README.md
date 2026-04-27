@@ -46,10 +46,7 @@ helm unittest -f 'tests/with-minikube-values/*.yaml' .
 ### Run tests with verbose output
 ```bash
 cd charts/kruize
-# Note: -v flag doesn't work with glob patterns, run specific test files instead
-helm unittest -v -f tests/with-default-values/kruize_ui_test.yaml .
-# Or run all tests without -v flag
-helm unittest -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' .
+helm unittest -d -f tests/with-default-values/kruize_ui_test.yaml .
 ```
 
 ### Generate JUnit Test Report
@@ -216,7 +213,7 @@ helm plugin install https://github.com/helm-unittest/helm-unittest
 
 Run with verbose output to see detailed failure information:
 ```bash
-helm unittest -v -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' charts/kruize
+helm unittest -d -f 'tests/with-default-values/*.yaml' -f 'tests/with-openshift-values/*.yaml' -f 'tests/with-minikube-values/*.yaml' charts/kruize
 ```
 
 ### Debugging Specific Tests
