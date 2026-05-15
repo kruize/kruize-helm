@@ -16,4 +16,3 @@ roleRef:
   kind: ClusterRole
   name: "{{ $fullName }}-test"
   apiGroup: rbac.authorization.k8s.io
-

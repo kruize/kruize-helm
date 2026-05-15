@@ -17,5 +17,3 @@ roleRef:
   kind: Role
   name: "{{ $fullName }}-test"
   apiGroup: rbac.authorization.k8s.io
-
-

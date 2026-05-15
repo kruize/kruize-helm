@@ -25,4 +25,10 @@ maintainers:
 - name: Chandrakala Subramanyam
   url: https://github.com/chandrams
 
+annotations:
+  charts.openshift.io/name: "Kruize - Kubernetes Resource Optimizer"
+  charts.openshift.io/provider: "Kruize"
+  charts.openshift.io/supportURL: "https://github.com/kruize/autotune/issues"
+  charts.openshift.io/archs: "x86_64"
+
 
