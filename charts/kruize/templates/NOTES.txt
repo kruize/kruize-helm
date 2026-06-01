@@ -73,7 +73,10 @@ Kruize has been deployed to your {{ .Values.kruize.config.clusterType }} cluster
 2. Check Kruize logs:
    kubectl logs -n {{ .Release.Namespace }} -l app={{ $fullName }} -f
 
-3. Create your first experiment:
+3. Access the API documentation:
+   Visit: https://github.com/kruize/autotune/blob/master/design/KruizeLocalAPI.md
+
+4. Create your first experiment:
    curl -X POST http://<KRUIZE_URL>/createExperiment -d @experiment.json
 
 {{- if .Values.monitoring.enabled }}

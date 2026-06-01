@@ -19,44 +19,46 @@ spec:
         - |
           echo "Installing required tools..."
           microdnf install -y tar gzip
-
+          
           # Install kubectl
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           mv kubectl /usr/local/bin/
-
+          
           echo "Getting service information..."
           export NODE_PORT=$(kubectl get -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ $fullName }})
           export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
-
+          
           echo "Service: {{ $fullName }}"
           echo "Namespace: {{ .Release.Namespace }}"
           echo "Node IP: $NODE_IP"
           echo "Node Port: $NODE_PORT"
           echo "Health endpoint: http://$NODE_IP:$NODE_PORT/health"
           echo ""
-
+          
           # Wait for service to be available and healthy
           echo "Testing Kruize service health..."
           for i in $(seq 1 10); do
             HEALTH_STATUS=$(curl -s http://$NODE_IP:$NODE_PORT/health || echo "ERROR")
             echo "Attempt $i/10: Health status = $HEALTH_STATUS"
-
+            
             if echo "$HEALTH_STATUS" | grep -q "UP"; then
               echo ""
               echo "✓ Kruize service is UP and accessible at http://$NODE_IP:$NODE_PORT"
               echo "✓ Health check passed: $HEALTH_STATUS"
               exit 0
             fi
-
+            
             if [ $i -lt 10 ]; then
               echo "Waiting for Kruize service to be UP..."
               sleep 2
             fi
           done
-
+          
           echo ""
           echo "✗ Kruize service health check failed after 20 seconds"
           echo "✗ Last health status: $HEALTH_STATUS"
           exit 1
   restartPolicy: Never
+
+

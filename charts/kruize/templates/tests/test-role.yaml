@@ -13,3 +13,5 @@ rules:
   - apiGroups: [""]
     resources: ["services", "nodes"]
     verbs: ["get", "list"]
+
+
