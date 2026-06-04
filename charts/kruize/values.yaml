@@ -50,7 +50,7 @@ kruize:
    
   config:
     clusterType: "kubernetes"
-    k8sType: "minikube"
+    k8sType: "kubernetes"
     authType: ""
     monitoringAgent: "prometheus"
     monitoringService: "prometheus-k8s"
