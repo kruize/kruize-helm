@@ -1,0 +1,102 @@
+{{- $fullName := include "kruize.fullname" . -}}
+================================================================================
+ ____  __.              .__
+|    |/ _|______ __ __ |__|________  ____
+|      <_/ ___//  |  \|  |\___   /_/ __ \
+|    |  \\  \___    |\  |  / /   \  ___/
+|____|__ \\___  >__\____|__/___  >\___  >
+        \/    \/              \/     \/
+
+Successfully installed Kruize Chart!
+================================================================================
+
+Kruize has been deployed to your {{ .Values.kruize.config.clusterType }} cluster.
+
+{{- if eq .Values.kruize.service.type "NodePort" }}
+
+🔗 ACCESS KRUIZE API:
+
+   To access the Kruize API service, get the NodePort and Node IP:
+
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ $fullName }})
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+
+   echo "Kruize API: http://$NODE_IP:$NODE_PORT"
+
+   # Test the API
+   curl http://$NODE_IP:$NODE_PORT/health
+
+🖥️  ACCESS KRUIZE UI:
+
+   export UI_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ $fullName }}-ui-nginx-service)
+   echo "Kruize UI: http://$NODE_IP:$UI_NODE_PORT"
+
+{{- else if eq .Values.kruize.service.type "LoadBalancer" }}
+
+🔗 ACCESS KRUIZE API:
+
+   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ $fullName }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+   echo "Kruize API: http://$SERVICE_IP:{{ .Values.kruize.service.port }}"
+
+🖥️  ACCESS KRUIZE UI:
+
+   export UI_SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ $fullName }}-ui-nginx-service --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+   echo "Kruize UI: http://$UI_SERVICE_IP:{{ .Values.kruizeUI.service.port }}"
+
+{{- else if eq .Values.kruize.service.type "ClusterIP" }}
+
+🔗 ACCESS KRUIZE API:
+
+   Kruize is accessible only within the cluster. To access it from outside:
+
+   kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ $fullName }} 8080:{{ .Values.kruize.service.port }}
+
+   Then access:
+   echo "Kruize API: http://localhost:8080"
+
+🖥️  ACCESS KRUIZE UI:
+
+   kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ $fullName }}-ui-nginx-service 8081:{{ .Values.kruizeUI.service.port }}
+
+   Then access:
+   echo "Kruize UI: http://localhost:8081"
+
+{{- end }}
+
+📊 NEXT STEPS:
+
+1. Verify Kruize pods are running:
+   kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "kruize.name" . }}
+
+2. Check Kruize logs:
+   kubectl logs -n {{ .Release.Namespace }} -l app={{ $fullName }} -f
+
+3. Access the API documentation:
+   Visit: https://github.com/kruize/autotune/blob/master/design/KruizeLocalAPI.md
+
+4. Create your first experiment:
+   curl -X POST http://<KRUIZE_URL>/createExperiment -d @experiment.json
+
+{{- if .Values.monitoring.enabled }}
+
+📈 MONITORING:
+
+   ServiceMonitor is enabled. Kruize metrics will be scraped by Prometheus.
+   Endpoint: /metrics on port {{ .Values.kruize.service.port }}
+
+{{- end }}
+
+💡 TIPS:
+
+   • Default database: PostgreSQL ({{ .Values.db.name }})
+   • Monitoring agent: {{ .Values.kruize.config.monitoringAgent }}
+   • Cluster type: {{ .Values.kruize.config.clusterType }}
+
+🐛 ISSUES: https://github.com/kruize/autotune/issues
+💬 COMMUNITY: https://kubernetes.slack.com/messages/kruize
+
+================================================================================
+Happy Optimizing! 🚀
+================================================================================

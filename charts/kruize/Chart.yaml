@@ -1,0 +1,34 @@
+apiVersion: v2
+name: kruize
+description: Optimize resources used by your containerized workloads
+
+appVersion: "0.9"
+home: "https://kruize.io"
+icon: "https://raw.githubusercontent.com/kruize/kruize-helm/main/docs/images/kruize-icon.png"
+
+type: application
+version: "0.1.0"
+
+keywords:
+- containers
+- monitoring
+- performance
+kubeVersion: '>= 1.25.0-0'
+
+sources:
+- https://github.com/kruize/autotune
+- https://github.com/kruize/kruize-ui
+
+maintainers:
+- name: Dinakar Guniguntala
+  url: https://github.com/dinogun
+- name: Chandrakala Subramanyam
+  url: https://github.com/chandrams
+
+annotations:
+  charts.openshift.io/name: "Kruize - Kubernetes Resource Optimizer"
+  charts.openshift.io/provider: "Kruize"
+  charts.openshift.io/supportURL: "https://github.com/kruize/autotune/issues"
+  charts.openshift.io/archs: "x86_64"
+
+
