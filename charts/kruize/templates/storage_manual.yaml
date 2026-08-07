@@ -1,0 +1,10 @@
+{{- if not (lookup "storage.k8s.io/v1" "StorageClass" "" "manual") }}
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: manual  
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+{{- end }}

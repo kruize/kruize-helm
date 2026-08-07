@@ -1,0 +1,19 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-db-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
+    app: {{ $fullName }}-db
+spec:
+  type: {{ .Values.db.service.type }}
+  ports:
+    - name: kruize-db-port
+      port: {{ .Values.db.service.port }}
+      targetPort: {{ .Values.db.service.port }}
+  selector:
+    {{- include "kruize.selectorLabels" . | nindent 4 }}
+    app: {{ $fullName }}-db

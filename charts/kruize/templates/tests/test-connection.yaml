@@ -1,0 +1,55 @@
+{{- $fullName := include "kruize.fullname" . -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ $fullName }}-test-connection"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  # No custom serviceAccountName needed, satisfying default security policies
+  containers:
+    - name: test
+      image: registry.access.redhat.com/ubi9/ubi-minimal:9.5
+      command: ['sh', '-c']
+      args:
+        - |
+          # Safely check if Values.service exists, otherwise default to port 8080
+          {{- $port := 8080 }}
+          {{- if .Values.service }}
+            {{- $port = .Values.service.port | default 8080 }}
+          {{- end }}
+          
+          # Internal Cluster DNS works identically on both Minikube and OpenShift
+          SVC_URL="http://{{ $fullName }}.{{ .Release.Namespace }}.svc.cluster.local:{{ $port }}/health"
+          
+          echo "Testing Kruize service health internally..."
+          echo "Target URL: $SVC_URL"
+          echo ""
+          
+          for i in $(seq 1 10); do
+            echo "Attempt $i/10..."
+            
+            # Execute a clean curl request using the container's native binaries
+            HEALTH_STATUS=$(curl -s --connect-timeout 2 "$SVC_URL" || echo "ERROR")
+            echo "Response: $HEALTH_STATUS"
+            
+            # Check if the endpoint responds with the expected "UP" state
+            if echo "$HEALTH_STATUS" | grep -q "UP"; then
+              echo ""
+              echo "✓ Kruize service is UP and healthy!"
+              exit 0
+            fi
+            
+            if [ $i -lt 10 ]; then
+              echo "Waiting for service to stabilize..."
+              sleep 3
+            fi
+          done
+          
+          echo "✗ Health check timed out after 10 attempts."
+          exit 1
+  restartPolicy: Never

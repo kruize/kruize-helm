@@ -1,0 +1,16 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}-db-pv-claim
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $fullName }}-db
+spec:
+  storageClassName: {{ .Values.db.pvc.storageClass | quote }}
+  accessModes:
+     {{- toYaml .Values.db.pvc.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.db.pvc.storageSize | quote }}

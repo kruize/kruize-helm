@@ -1,0 +1,52 @@
+# OpenShift-specific values for Kruize Helm Chart
+# This file represents the default values.yaml settings for OpenShift deployments
+
+# Kruize Configuration
+kruize:
+  config:
+    k8sType: "openshift"
+    
+    # OpenShift-specific datasource configuration
+    datasource:
+      - name: "prometheus-1"
+        provider: "prometheus"
+        serviceName: "prometheus-k8s"
+        namespace: "openshift-monitoring"
+        url: ""
+        authentication:
+          type: "bearer"
+          credentials:
+            tokenFilePath: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+      
+      - name: "thanos-1"
+        provider: "prometheus"
+        serviceName: "thanos-querier"
+        namespace: "openshift-monitoring"
+        url: ""
+        authentication:
+          type: "bearer"
+          credentials:
+            tokenFilePath: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+# RBAC Configuration
+rbac:
+  # Enable OpenShift-specific RBAC resources
+  create: true
+
+# Service Account Configuration
+serviceAccount:
+  # Create service account for OpenShift
+  create: true
+  name: ""
+
+# Network Policy Configuration
+networkPolicy:
+  # Disable network policy for OpenShift (uses OpenShift's built-in network policies)
+  enabled: false
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  interval: 30s
+
+

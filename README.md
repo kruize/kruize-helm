@@ -1,1 +1,1 @@
-# kruize-helm
+charts/kruize/README.md

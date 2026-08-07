@@ -1,0 +1,142 @@
+name: Helm Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+      - mvp_demo
+    paths:
+      - 'charts/kruize/**'
+      - '.github/workflows/helm-unittest.yaml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - mvp_demo
+    paths:
+      - 'charts/kruize/**'
+      - '.github/workflows/helm-unittest.yaml'
+  workflow_dispatch:
+
+env:
+  HELM_VERSION: v3.13.0
+
+jobs:
+  helm-unittest:
+    name: Run Helm Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Install helm-unittest plugin
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest --version 1.0.3
+
+      - name: Run unit tests
+        run: |
+          echo "Running all Helm unit tests with different values configurations..."
+          echo "  • with-default-values/ - Tests using default values.yaml"
+          echo "  • with-minikube-values/ - Tests using values-minikube.yaml"
+          echo "  • with-openshift-values/ - Tests using values-openshift.yaml"
+          echo ""
+          helm unittest \
+            -f 'tests/with-default-values/*.yaml' \
+            -f 'tests/with-minikube-values/*.yaml' \
+            -f 'tests/with-openshift-values/*.yaml' \
+            --color --with-subchart=false \
+            charts/kruize
+
+      - name: Generate JUnit test report
+        if: always()
+        run: |
+          helm unittest \
+            -f 'tests/with-default-values/*.yaml' \
+            -f 'tests/with-minikube-values/*.yaml' \
+            -f 'tests/with-openshift-values/*.yaml' \
+            --output-type JUnit --output-file test-results.xml --with-subchart=false \
+            charts/kruize
+
+      - name: Generate HTML test report
+        if: always()
+        run: |
+          helm unittest \
+            -f 'tests/with-default-values/*.yaml' \
+            -f 'tests/with-minikube-values/*.yaml' \
+            -f 'tests/with-openshift-values/*.yaml' \
+            --output-type html --output-file test-results.html --with-subchart=false \
+            charts/kruize
+
+      - name: Upload test results (XML & HTML)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: helm-unittest-results
+          path: |
+            test-results.xml
+            test-results.html
+          retention-days: 4
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "=== Helm Unit Test Summary ==="
+          echo ""
+          echo "Test suites executed:"
+          echo "  • with-default-values/ - Tests using default values.yaml"
+          echo "  • with-minikube-values/ - Tests using values-minikube.yaml"
+          echo "  • with-openshift-values/ - Tests using values-openshift.yaml"
+          echo ""
+          echo "Note: All tests are unit tests that render and validate templates."
+          echo "No actual Kubernetes cluster is required to run these tests."
+          echo ""
+          if [ -f test-results.xml ]; then
+            echo "✅ Test results generated successfully"
+            echo "📊 View detailed results in the artifacts"
+            
+            # Count test results - try multiple patterns for different XML formats
+            TESTS=$(grep -oP 'tests="\K[0-9]+' test-results.xml | head -1)
+            FAILURES=$(grep -oP 'failures="\K[0-9]+' test-results.xml | head -1)
+            
+            # If empty, try testsuites format
+            if [ -z "$TESTS" ]; then
+              TESTS=$(grep -oP '<testsuite.*tests="\K[0-9]+' test-results.xml | awk '{s+=$1} END {print s}')
+            fi
+            
+            if [ -z "$FAILURES" ]; then
+              FAILURES=$(grep -oP '<testsuite.*failures="\K[0-9]+' test-results.xml | awk '{s+=$1} END {print s}')
+            fi
+            
+            # Set defaults if still empty
+            TESTS=${TESTS:-0}
+            FAILURES=${FAILURES:-0}
+            
+            echo ""
+            echo "Total tests: $TESTS"
+            echo "Failures: $FAILURES"
+            
+            # Fail if no tests ran
+            if [ "$TESTS" -eq 0 ]; then
+              echo "❌ No tests were executed!"
+              exit 1
+            fi
+            
+            # Fail if any tests failed
+            if [ "$FAILURES" -gt 0 ]; then
+              echo "❌ Some tests failed"
+              exit 1
+            fi
+            
+            echo "✅ All tests passed successfully"
+          else
+            echo "❌ Test results not found"
+            exit 1
+          fi
+
+

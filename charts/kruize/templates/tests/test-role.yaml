@@ -1,0 +1,17 @@
+{{- $fullName := include "kruize.fullname" . -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "{{ $fullName }}-test"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: [""]
+    resources: ["services", "nodes"]
+    verbs: ["get", "list"]
+
+

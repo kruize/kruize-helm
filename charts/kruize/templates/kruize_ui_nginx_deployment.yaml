@@ -1,0 +1,36 @@
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-ui-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $fullName }}-ui-nginx
+spec:
+  replicas: {{ .Values.kruizeUI.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ $fullName }}-ui-nginx
+  template:
+    metadata:
+      labels:
+        app: {{ $fullName }}-ui-nginx
+    spec:
+      containers:
+        - name: kruize-ui-nginx-container
+          image: "{{ .Values.kruizeUI.image.repository }}:{{ .Values.kruizeUI.image.tag }}"
+          imagePullPolicy: {{ .Values.kruizeUI.image.pullPolicy }}
+          env:
+            - name: KRUIZE_UI_ENV
+              value: "production"
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: {{ $fullName }}-nginx-config
